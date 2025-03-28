@@ -1,0 +1,41 @@
+bar:
+  bottom:
+    height: 38
+    margin:
+    - 0
+    - 8
+    - 8
+    - 8
+    opacity: 0.8
+  top:
+    height: 38
+    margin:
+    - 8
+    - 8
+    - 0
+    - 8
+    opacity: 0.8
+color:
+  base16:
+    scheme_dir: /nix/store/kgk4r5rzjnn95y7ssyxln63nidcv85v5-base16-schemes-unstable-2024-11-12/share/themes
+    scheme_name: nord
+  named:
+    widget_bg: [ "base07", "base06" ]
+    widget_fg_dark: base00
+    widget_fg_light: base04
+font:
+  icon:
+    family: Material Design Icons
+    size: 22
+  logo:
+    family: Hack Nerd Font
+    size: 22
+  text:
+    family: JetBrainsMono Nerd Font
+    size: 16
+  weather:
+    family: Hack Nerd Font
+    size: 22
+layout:
+  margin: 8
+logo: 

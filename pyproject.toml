@@ -1,0 +1,42 @@
+[project]
+name = "qde"
+version = "0.1.0"
+description = "QTile Window Manager"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "psutil>=7.0.0",
+    "pywayland>=0.4.18",
+    "pywlroots>=0.17.0",
+    "pyyaml>=6.0.2",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.1.1",
+    "qtile>=0.31.0",
+    "qtile-extras>=0.31.0",
+    "types-psutil>=7.0.0.20250218",
+    "types-pyyaml>=6.0.12.20250326",
+]
+
+[tool.pytest.ini_options]
+markers = ["unit", "integration"]
+pythonpath = ["./qtile"]
+junit_family = "xunit2"
+norecursedirs = [
+    ".direnv",
+    ".venv",
+    ".git",
+    ".tox",
+    ".cache",
+    ".settings",
+    "dist",
+    "build",
+    "docs",
+    ".devenv",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config"]
+known-third-party = ["libqtile"]
