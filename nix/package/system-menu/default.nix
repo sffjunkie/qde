@@ -6,7 +6,7 @@
 }:
 let
   system-menu = pkgs.writeScriptBin "system-menu" ''
-    #!${lib.getExe pkgs.bash}
+    #!${pkgs.runtimeShell}
     swapon --show | grep "dev" > /dev/null 2>&1
     if [ $? -eq 0 ]; then
       hibernate_choice="/hibernate"

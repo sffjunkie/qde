@@ -20,6 +20,5 @@ let
 
     ${notify-send} -a music-notify -r 27072 -t 2000 "Now Playing" "$(${mpc} --format '%title% by %artist% in %album%' current)" -i "$previewname"
   '';
-  inherit (lib) mkEnableOption mkIf;
 in
 music-notify

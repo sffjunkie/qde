@@ -21,10 +21,11 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
+          app-launcher = pkgs.callPackage ./nix/package/app-launcher { inherit pkgs; };
+          clipboard = pkgs.callPackage ./nix/package/clipboard { inherit pkgs; };
           music-notify = pkgs.callPackage ./nix/package/music-notify { inherit pkgs; };
           system-info = pkgs.callPackage ./nix/package/system-info { inherit pkgs; };
           system-menu = pkgs.callPackage ./nix/package/system-menu { inherit pkgs; };
-          # user-menu = pkgs.callPackage ./nix/package/user-menu { inherit pkgs; };
         }
       );
 
@@ -103,12 +104,12 @@
           python = pkgs.buildPackages.python312;
 
           libPath = pkgs.lib.makeLibraryPath [
-            pkgs.xorg.libxcb
-            pkgs.glib
-            pkgs.gdk-pixbuf
             pkgs.cairo
-            pkgs.pango
+            pkgs.gdk-pixbuf
+            pkgs.glib
             pkgs.libxkbcommon
+            pkgs.pango
+            pkgs.xorg.libxcb
           ];
         in
         {
@@ -126,6 +127,8 @@
               python.pkgs.pulsectl-asyncio
               python.pkgs.pydantic
 
+              self.packages.x86_64-linux.app-launcher
+              self.packages.x86_64-linux.clipboard
               self.packages.x86_64-linux.music-notify
               self.packages.x86_64-linux.system-info
               self.packages.x86_64-linux.system-menu
