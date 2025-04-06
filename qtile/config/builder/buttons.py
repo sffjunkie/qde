@@ -1,11 +1,16 @@
 from libqtile.config import Click, Drag  # type: ignore
 from libqtile.lazy import lazy  # type: ignore
 
-from ..setting.typedef import Settings
+from ..setting.model import Settings
+from ..setting.default import DEFAULT_KEY
 
 
-def build_mouse_buttons(settings: Settings):
-    cmd = settings["key"]["cmd"]
+def build_buttons(settings: Settings):
+    if settings.key is None:
+        cmd = DEFAULT_KEY["cmd"]
+    else:
+        cmd = settings.key.cmd
+
     return [
         Drag(
             [cmd],

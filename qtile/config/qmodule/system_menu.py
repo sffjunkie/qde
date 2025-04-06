@@ -54,7 +54,7 @@ class SystemMenu(WidgetModule):
         hostname = TextBox(**props)
 
         icon_props = {
-            "text": self.context.theme["logo"],
+            "text": self.context.theme.logo,
             "font": self.context.icon_font_family,
             "fontsize": self.context.icon_font_size,
             "width": self.context.bar.height,

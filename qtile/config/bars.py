@@ -1,13 +1,11 @@
 """Bars for Qtile"""
 
 import os
-from itertools import cycle
-from typing import Iterator
 
+from libqtile.log_utils import logger  # type: ignore
 from libqtile.bar import Bar as QBar  # type: ignore
 from qtile_extras.widget import Spacer as QSpacer  # type: ignore
 
-from .color import contrast_color
 from .qbar.context import BarContext
 from .qmodule.base import WidgetModule
 from .qmodule.context import ModuleContext
@@ -25,42 +23,15 @@ from .qmodule.user_menu import UserMenu
 from .qmodule.volume_status import VolumeStatus
 from .qmodule.weather import Weather
 from .qmodule.window_name import WindowName
-from .setting.typedef import Settings
-from .theme.typedef import Theme
-
-
-def fg_cycle(iterable, fg_light: str, fg_dark: str) -> Iterator:
-    saved = []
-    for element in iterable:
-        fg = contrast_color(element, fg_light, fg_dark)
-        yield fg
-        saved.append(fg)
-
-    while saved:
-        for element in saved:
-            yield element
-
-
-def powerline_fg_iter(theme: Theme) -> Iterator:
-    return fg_cycle(
-        theme["color"]["named"]["widget_bg"],
-        theme["color"]["named"]["widget_fg_light"],
-        theme["color"]["named"]["widget_fg_dark"],
-    )
-
-
-def widget_bg_iter(theme: Theme) -> Iterator:
-    return cycle(theme["color"]["named"]["widget_bg"])
+from .setting.model import Settings
+from .theme.model import Theme
+from .theme.iter import widget_color_iter
 
 
 def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
-    named_colors = theme["color"]["named"]
-
-    bg_iter = widget_bg_iter(theme)
-    _fg_iter = powerline_fg_iter(theme)
-
+    named_colors = theme.color.named
+    _color_iter = widget_color_iter(theme)
     bar_context = BarContext("top", settings, theme)
-
     widgets = []
 
     separator = Separator(
@@ -72,37 +43,45 @@ def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
     )
 
     # region start
+    fg, bg = next(_color_iter)
+    user_menu = UserMenu(
+        ModuleContext(
+            bar_context,
+            settings,
+            theme,
+            props={
+                "color": fg,
+                "background": bg,
+            },
+        )
+    )
+
+    group_box = GroupBox(
+        ModuleContext(
+            bar_context,
+            settings,
+            theme,
+            props={
+                "background": named_colors.panel_bg,
+            },
+        )
+    )
+
+    current_layout = CurrentLayout(
+        ModuleContext(
+            bar_context,
+            settings,
+            theme,
+            props={
+                "background": named_colors.panel_bg,
+            },
+        )
+    )
+
     start: list[WidgetModule] = [
-        UserMenu(
-            ModuleContext(
-                bar_context,
-                settings,
-                theme,
-                props={
-                    "background": next(bg_iter),
-                },
-            )
-        ),
-        GroupBox(
-            ModuleContext(
-                bar_context,
-                settings,
-                theme,
-                props={
-                    "background": named_colors["panel_bg"],
-                },
-            )
-        ),
-        CurrentLayout(
-            ModuleContext(
-                bar_context,
-                settings,
-                theme,
-                props={
-                    "background": named_colors["panel_bg"],
-                },
-            )
-        ),
+        user_menu,
+        group_box,
+        current_layout,
     ]
 
     module_idx = 0
@@ -122,7 +101,7 @@ def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
                 theme,
                 props={
                     "group": 4,
-                    "background": named_colors["panel_bg"],
+                    "background": named_colors.panel_bg,
                 },
             )
         ),
@@ -138,12 +117,14 @@ def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
     # endregion
 
     # region end
+    fg, bg = next(_color_iter)
     weather_context = ModuleContext(
         bar_context,
         settings,
         theme,
         props={
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
             "weather": {
                 "app_key": os.environ.get("OWM_API_KEY", ""),
                 "coordinates": {
@@ -155,21 +136,25 @@ def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
         },
     )
 
+    fg, bg = next(_color_iter)
     date_time_context = ModuleContext(
         bar_context,
         settings,
         theme,
         props={
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
         },
     )
 
+    fg, bg = next(_color_iter)
     system_menu_context = ModuleContext(
         bar_context,
         settings,
         theme,
         props={
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
         },
     )
 
@@ -196,7 +181,7 @@ def build_top_bar(settings: Settings, theme: Theme) -> QBar | None:
 
 
 def build_bottom_bar(settings: Settings, theme: Theme) -> QBar | None:
-    bg_iter = widget_bg_iter(theme)
+    _color_iter = widget_color_iter(theme)
 
     bar_context = BarContext("bottom", settings, theme)
 
@@ -213,7 +198,8 @@ def build_bottom_bar(settings: Settings, theme: Theme) -> QBar | None:
     # region start
     start: list[WidgetModule] = []
 
-    if (net_dev := settings["device"].get("net", None)) is not None:
+    if (net_dev := getattr(settings.device, "net", None)) is not None:
+        fg, bg = next(_color_iter)
         network_status_context = ModuleContext(
             bar_context,
             settings,
@@ -222,11 +208,13 @@ def build_bottom_bar(settings: Settings, theme: Theme) -> QBar | None:
                 "network": {
                     "interface": net_dev,
                 },
-                "background": next(bg_iter),
+                "color": fg,
+                "background": bg,
             },
         )
         start.append(NetworkStatus(network_status_context))
 
+    fg, bg = next(_color_iter)
     memory_status_context = ModuleContext(
         bar_context,
         settings,
@@ -235,27 +223,32 @@ def build_bottom_bar(settings: Settings, theme: Theme) -> QBar | None:
             "memory": {
                 "format": "{MemUsed:6.0f}M/{MemTotal:.0f}M",
             },
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
         },
     )
     start.append(MemoryStatus(memory_status_context))
 
+    fg, bg = next(_color_iter)
     cpu_usage_context = ModuleContext(
         bar_context,
         settings,
         theme,
         props={
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
         },
     )
     start.append(CPUUsageStatus(cpu_usage_context))
 
+    fg, bg = next(_color_iter)
     cpu_temp_context = ModuleContext(
         bar_context,
         settings,
         theme,
         props={
-            "background": next(bg_iter),
+            "color": fg,
+            "background": bg,
         },
     )
     start.append(CPUTempStatus(cpu_temp_context))
@@ -283,37 +276,46 @@ def build_bottom_bar(settings: Settings, theme: Theme) -> QBar | None:
     # region end
     end: list[WidgetModule] = []
 
-    if settings["controller"]["music"] is not None:
-        music_status_context = ModuleContext(
-            bar_context,
-            settings,
-            theme,
-            props={
-                "music": {
-                    "status_format": "{play_status} {title} | {artist} | {album}",
-                    "idle_format": "Play queue empty",
+    if settings.controller is not None:
+        if settings.controller.music is not None:
+            fg, bg = next(_color_iter)
+            music_status_context = ModuleContext(
+                bar_context,
+                settings,
+                theme,
+                props={
+                    "music": {
+                        "status_format": "{play_status} {title} | {artist} | {album}",
+                        "idle_format": "Play queue empty",
+                    },
+                    "color": fg,
+                    "background": bg,
                 },
-                "background": next(bg_iter),
-            },
-        )
-        end.append(MusicStatus(music_status_context))
+            )
+            end.append(MusicStatus(music_status_context))
 
-    if settings["controller"]["volume"] is not None:
-        volume_context = ModuleContext(
-            bar_context,
-            settings,
-            theme,
-            props={
-                "background": next(bg_iter),
-                "volume": {
-                    "volume_up_command": settings["controller"]["volume"]["up"],
-                    "volume_down_command": settings["controller"]["volume"]["down"],
-                    "mute_command": settings["controller"]["volume"]["toggle"],
-                    "volume_app": settings["app"]["volume"],
+        if settings.controller.volume is not None:
+            fg, bg = next(_color_iter)
+            volume_context = ModuleContext(
+                bar_context,
+                settings,
+                theme,
+                props={
+                    "volume": {
+                        "volume_up_command": settings.controller.volume.up,
+                        "volume_down_command": settings.controller.volume.down,
+                        "mute_command": settings.controller.volume.toggle,
+                        "volume_app": settings.app.volume,
+                    },
+                    "color": fg,
+                    "background": bg,
                 },
-            },
+            )
+            end.append(VolumeStatus(volume_context))
+    else:
+        logger.warning(
+            "No controller definitions, not craeting music and volume control widgets"
         )
-        end.append(VolumeStatus(volume_context))
 
     group_id = module_idx + 1
     for module_idx, group in enumerate(end):

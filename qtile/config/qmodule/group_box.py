@@ -38,18 +38,14 @@ class GroupBox(WidgetModule):
             "borderwidth": 0,
             # "font": self.context.text_font_family,
             # "fontsize": self.context.text_font_size,
-            "foreground": self.context.theme["color"]["named"]["panel_fg"],
+            "foreground": self.context.theme.color.named.panel_fg,
             "background": f"{background_color}00",
-            "active": self.context.theme["color"]["named"]["group_active_fg"],
-            "inactive": self.context.theme["color"]["named"]["group_inactive_fg"],
+            "active": self.context.theme.color.named.group_active_fg,
+            "inactive": self.context.theme.color.named.group_inactive_fg,
             "rounded": True,
             "highlight_method": "block",
-            "this_current_screen_border": self.context.theme["color"]["named"][
-                "group_current_bg"
-            ],
-            "this_screen_border": self.context.theme["color"]["named"][
-                "group_current_bg"
-            ],
+            "this_current_screen_border": self.context.theme.color.named.group_current_bg,
+            "this_screen_border": self.context.theme.color.named.group_current_bg,
             "use_mouse_wheel": False,
             # other_current_screen_border=theme_colors["panel_bg"],
             # other_screen_border=theme_colors["panel_bg"],

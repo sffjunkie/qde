@@ -1,9 +1,9 @@
 from enum import StrEnum
 
-from ..theme.typedef import Theme
+from ..theme.model import Theme
 from ..qbar.context import BarContext
 from ..color import opacity_to_str
-from ..setting.typedef import Settings
+from ..setting.model import Settings
 
 
 class GroupPosition(StrEnum):

@@ -1,17 +1,14 @@
 from .typedef import (
     Margins,
-    MarginTopRight,
     ScreenFraction,
     WindowLocation,
     WindowPosition,
 )
 
 
-def to_margins(margin: ScreenFraction | MarginTopRight | Margins = 0.0) -> Margins:
+def to_margins(margin: ScreenFraction | Margins = 0.0) -> Margins:
     if isinstance(margin, float):
         return Margins(margin, margin, margin, margin)
-    elif isinstance(margin, MarginTopRight):
-        return Margins(margin.top, margin.right, margin.top, margin.right)
     elif isinstance(margin, Margins):
         return margin
     else:
@@ -22,7 +19,7 @@ def anchor_window(
     location: WindowLocation,
     width: ScreenFraction,
     height: ScreenFraction,
-    margin: ScreenFraction | MarginTopRight | Margins = 0.0,
+    margin: ScreenFraction | Margins = 0.0,
 ) -> WindowPosition:
     margins = to_margins(margin)
     w_width = min(width, 1.0 - (margins.left + margins.right))

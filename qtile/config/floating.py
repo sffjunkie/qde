@@ -1,6 +1,7 @@
 from libqtile import layout  # type: ignore
-from libqtile.config import _Match, Match  # type: ignore
-from .theme.typedef import Theme
+from libqtile.config import Match, _Match  # type: ignore
+
+from .theme.model import Theme
 
 wmclass_float = [
     "com.github.wwmm.easyeffects",
@@ -21,9 +22,8 @@ def float_rules() -> list[_Match]:
 
 
 def build_layout(theme: Theme) -> layout.Floating:
-    color_scheme = theme["color"]["named"]
     return layout.Floating(
         float_rules=float_rules(),
-        border_normal=color_scheme["window_border"],
-        border_focus=color_scheme["window_border"],
+        border_normal=theme.window_floating.border_normal,
+        border_focus=theme.window_floating.border_focus,
     )

@@ -3,9 +3,8 @@
 from libqtile.config import Key  # type: ignore
 from libqtile.lazy import lazy  # type: ignore
 
+from ..setting.model import Settings
 from ..window import float_to_front
-from ..setting.typedef import Settings
-
 
 APP_LAUNCH = ["cmd", "alt"]
 
@@ -24,7 +23,7 @@ WINDOW_SWITCH = ["cmd"]
 
 
 def user_menu(settings: Settings):
-    # launch = [settings["key"][name] for name in (APP_LAUNCH)]
+    # launch = [getattr(settings.key, name) for name in (APP_LAUNCH)]
     return [
         # Key(
         #     modifiers,
@@ -36,60 +35,61 @@ def user_menu(settings: Settings):
 
 
 def system_menu(settings: Settings):
-    launch = [settings["key"][name] for name in (APP_LAUNCH)]
+    launch = [getattr(settings.key, name) for name in APP_LAUNCH]
     return [
         Key(
             launch,
             "F12",
-            lazy.spawn(settings["app"]["system_menu"]),
+            lazy.spawn(settings.app.system_menu),
             desc="Show the system menu",
         ),
     ]
 
 
 def application(settings: Settings):
-    launch = [settings["key"][name] for name in (APP_LAUNCH)]
+    launch = [getattr(settings.key, name) for name in APP_LAUNCH]
     return [
         # Launcher
         Key(
             launch,
             "Return",
-            lazy.spawn(settings["app"]["app_launcher"]),
+            lazy.spawn(settings.app.app_launcher),
             desc="Show the rofi app launcher (drun)",
         ),
         # Browser
         Key(
             launch,
             "w",
-            lazy.spawn(settings["app"]["browser"]),
+            lazy.spawn(settings.app.browser),
             desc="Start the browser",
         ),
         # Brain
         Key(
             launch,
             "b",
-            lazy.spawn(settings["app"]["brain"]),
+            lazy.spawn(settings.app.brain),
             desc="Start the Brain",
         ),
         # Code Editor
         Key(
             launch,
             "c",
-            lazy.spawn(settings["app"]["code"]),
+            lazy.spawn(settings.app.code),
             desc="Start Coding",
         ),
         # Terminal
         Key(
             launch,
             "t",
-            lazy.spawn(settings["app"]["terminal"]),
+            lazy.spawn(settings.app.terminal),
             desc="Start the terminal",
         ),
     ]
 
 
 def layout(settings: Settings):
-    cmd = settings["key"]["cmd"]
+    cmd = settings.key.cmd
+
     return [
         Key(
             [cmd],
@@ -101,9 +101,9 @@ def layout(settings: Settings):
 
 
 def window(settings: Settings):
-    switch = [settings["key"][name] for name in (WINDOW_SWITCH)]
-    move = [settings["key"][name] for name in (WINDOW_MOVE)]
-    control = [settings["key"][name] for name in (WINDOW_CONTROL)]
+    switch = [getattr(settings.key, name) for name in (WINDOW_SWITCH)]
+    move = [getattr(settings.key, name) for name in (WINDOW_MOVE)]
+    control = [getattr(settings.key, name) for name in (WINDOW_CONTROL)]
 
     return [
         # region Switch
@@ -231,8 +231,8 @@ def window(settings: Settings):
 
 
 def group(settings: Settings):
-    switch = [settings["key"][name] for name in (WINDOW_SWITCH)]
-    move = [settings["key"][name] for name in (WINDOW_MOVE)]
+    switch = [getattr(settings.key, name) for name in (WINDOW_SWITCH)]
+    move = [getattr(settings.key, name) for name in (WINDOW_MOVE)]
 
     keys = [
         Key(
@@ -249,31 +249,32 @@ def group(settings: Settings):
         ),
     ]
 
-    for idx, item in enumerate(settings["group"], 1):
-        name = str(idx)
-        label = item["name"]
-        keys.append(
-            Key(
-                switch,
-                name,
-                lazy.group[name].toscreen(toggle=True),
-                desc=f"Switch to group {label}",
+    if settings.group is not None:
+        for idx, item in enumerate(settings.group.groups, 1):
+            name = str(idx)
+            label = item.name
+            keys.append(
+                Key(
+                    switch,
+                    name,
+                    lazy.group[name].toscreen(toggle=True),
+                    desc=f"Switch to group {label}",
+                )
             )
-        )
-        keys.append(
-            Key(
-                move,
-                name,
-                lazy.window.togroup(name),
-                desc=f"Send current window to group {label}",
+            keys.append(
+                Key(
+                    move,
+                    name,
+                    lazy.window.togroup(name),
+                    desc=f"Send current window to group {label}",
+                )
             )
-        )
 
     return keys
 
 
 def screen(settings: Settings):
-    switch = [settings["key"][name] for name in (SCREEN_SWITCH)]
+    switch = [getattr(settings.key, name) for name in (SCREEN_SWITCH)]
     return [
         Key(
             switch,
@@ -291,7 +292,7 @@ def screen(settings: Settings):
 
 
 def clipboard(settings: Settings):
-    launch = [settings["key"][name] for name in (APP_LAUNCH)]
+    launch = [getattr(settings.key, name) for name in (APP_LAUNCH)]
     return [
         Key(
             launch,
@@ -313,7 +314,7 @@ def clipboard(settings: Settings):
 
 
 def qtile(settings: Settings):
-    control = [settings["key"][name] for name in (QTILE_CONTROL)]
+    control = [getattr(settings.key, name) for name in (QTILE_CONTROL)]
     return [
         Key(
             control,
@@ -331,8 +332,8 @@ def qtile(settings: Settings):
 
 
 def music(settings: Settings):
-    fkey = [settings["key"][name] for name in ("cmd",)]
-    launch = [settings["key"][name] for name in (APP_LAUNCH)]
+    fkey = [settings.key.cmd]
+    launch = [getattr(settings.key, name) for name in (APP_LAUNCH)]
     return [
         # Play / Pause
         Key(
@@ -363,7 +364,7 @@ def music(settings: Settings):
 
 
 def vt(settings: Settings):
-    switch = [settings["key"][name] for name in (VT_SWITCH)]
+    switch = [getattr(settings.key, name) for name in (VT_SWITCH)]
     return [
         Key(
             switch,

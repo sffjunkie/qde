@@ -3,13 +3,12 @@ from pathlib import Path
 
 import yaml  # type: ignore
 
-from .typedef import Base16Palette, NamedColors, Theme
-from .default import DEFAULT_BASE16_PALETTE, DEFAULT_NAMED_COLORS
+from .model.default import DEFAULT_BASE16_PALETTE, DEFAULT_NAMED_COLORS
 
 
 def _load_base16_color_scheme(
     scheme_file: str, scheme_folder: str | None = None
-) -> Base16Palette | None:
+) -> dict | None:
     if scheme_folder is None:
         xdg_data_home = os.environ.get("XDG_DATA_HOME", None)
         if xdg_data_home is not None:
@@ -32,26 +31,29 @@ def _load_base16_color_scheme(
     return None
 
 
-def theme_base16_color_palette(theme: Theme) -> Base16Palette:
+def theme_base16_color_palette(theme_data: dict) -> dict:
+    if theme_data["color"] is None or theme_data["color"].get("base16", None) is None:
+        return DEFAULT_BASE16_PALETTE  # type: ignore
+
     base16_palette = None
-    base16 = theme["color"].get("base16", None)
-    if base16 is not None:
-        base16_palette = base16.get("palette", None)
-        if base16_palette is None:
-            scheme_dir = base16.get("scheme_dir", None)
-            scheme_name = base16.get("scheme_name", None)
-            if scheme_name is not None and scheme_dir is not None:
-                base16_palette = _load_base16_color_scheme(scheme_name, scheme_dir)
+    if theme_data["color"]["base16"].get("palette", None) is None:
+        scheme_dir = theme_data["color"]["base16"].get("scheme_dir", None)
+        scheme_name = theme_data["color"]["base16"].get("scheme_name", None)
+        if scheme_name is not None and scheme_dir is not None:
+            base16_palette = _load_base16_color_scheme(scheme_name, scheme_dir)
 
     if base16_palette is None:
         base16_palette = DEFAULT_BASE16_PALETTE
 
-    return base16_palette
+    return base16_palette  # type: ignore
 
 
 def theme_named_color_palette(
-    theme: Theme,
-) -> NamedColors:
-    named_colors = theme["color"]["named"]
+    theme_data: dict,
+) -> dict:
+    if theme_data["color"] is None or theme_data["color"]["named"] is None:
+        named_colors = DEFAULT_NAMED_COLORS
+    else:
+        named_colors = DEFAULT_NAMED_COLORS | theme_data["color"]["named"]
 
-    return DEFAULT_NAMED_COLORS | named_colors
+    return named_colors

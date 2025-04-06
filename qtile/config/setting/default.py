@@ -1,6 +1,4 @@
-from .typedef import Apps, Keys, Devices
-
-DEFAULT_APP: Apps = {
+DEFAULT_APP = {
     "terminal": "xterm",
     "brain": None,
     "browser": None,
@@ -14,11 +12,11 @@ DEFAULT_APP: Apps = {
     "wallpaper": None,
 }
 
-DEFAULT_DEVICE: Devices = {
+DEFAULT_DEVICE = {
     "net": "eth0",
 }
 
-DEFAULT_KEY: Keys = {
+DEFAULT_KEY = {
     "alt": "mod1",
     "ctrl": "control",
     "hyper": "mod3",
@@ -26,10 +24,11 @@ DEFAULT_KEY: Keys = {
     "cmd": "mod4",
 }
 
-
-DEFAULT_GROUP = [
-    {
-        "name": "WWW",
-        "options": {"layout": "monadtall"},
-    }
-]
+DEFAULT_SETTINGS = {
+    "app": DEFAULT_APP,
+    "device": DEFAULT_DEVICE,
+    "key": DEFAULT_KEY,
+    "controller": None,
+    "group": None,
+    "input": None,
+}

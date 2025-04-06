@@ -4,7 +4,7 @@ import random
 import string
 from itertools import chain
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import yaml
 
@@ -23,7 +23,7 @@ def user_config_dir(config_dir: str = CONFIG_DIR) -> Path:
 
 def read_yaml(filepath: Path | None = None) -> dict[str, Any]:
     data = {}
-    if filepath is not None:
+    if filepath is not None and filepath.exists():
         try:
             with open(filepath, "r") as fp:
                 data = yaml.load(fp, yaml.SafeLoader)
@@ -41,7 +41,7 @@ class _MultiDict(dict):
             super().__setitem__(key, value)
 
 
-def read_ini(filepath: Path, has_sections: bool = True) -> dict[str, str]:
+def read_ini(filepath: Path, has_sections: bool = True) -> dict[str, list[str]]:
     data = {}
     parser = configparser.ConfigParser(
         strict=False,
@@ -54,6 +54,7 @@ def read_ini(filepath: Path, has_sections: bool = True) -> dict[str, str]:
         with open(filepath, "r") as fp:
             lines = fp.readlines()
 
+            contents: Iterable[str]
             if not has_sections:
                 contents = chain((f"[{dummy}]\n",), lines)
             else:
@@ -66,7 +67,7 @@ def read_ini(filepath: Path, has_sections: bool = True) -> dict[str, str]:
                 if "\n" in value:
                     data[name] = value.split("\n")
                 else:
-                    data[name] = value
+                    data[name] = [value]
     except IOError:
         pass
 

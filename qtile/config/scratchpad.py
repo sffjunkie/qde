@@ -2,7 +2,7 @@ from libqtile.config import DropDown, Key, ScratchPad  # type: ignore
 from libqtile.lazy import lazy  # type: ignore
 
 from .anchor import WindowLocation, anchor_window
-from .setting.typedef import Settings
+from .setting.model import Settings
 from .terminal import terminal_run_command
 
 
@@ -24,7 +24,10 @@ def build_scratchpads(settings: Settings) -> list[ScratchPad]:
             dropdowns=[
                 DropDown(
                     name="music-player",
-                    cmd=terminal_run_command(settings["app"]["terminal"], ["ncmpcpp"]),
+                    cmd=terminal_run_command(
+                        settings.app.terminal,
+                        ["ncmpcpp"],
+                    ),
                     height=ncmpcpp_dimension.height,
                     width=ncmpcpp_dimension.width,
                     x=ncmpcpp_dimension.x,
@@ -40,7 +43,10 @@ def build_scratchpads(settings: Settings) -> list[ScratchPad]:
             dropdowns=[
                 DropDown(
                     name="home-automation",
-                    cmd=f"{settings['app']['terminal']} https://hass.looniversity.net",
+                    cmd=terminal_run_command(
+                        settings.app.terminal,
+                        ["https://hass.looniversity.net"],
+                    ),
                     height=home_automation_dimension.height,
                     width=home_automation_dimension.width,
                     x=home_automation_dimension.x,
@@ -55,8 +61,8 @@ def build_scratchpads(settings: Settings) -> list[ScratchPad]:
 
 
 def build_keys(settings: Settings) -> list[Key]:
-    Super = settings["key"]["cmd"]
-    Alt = settings["key"]["alt"]
+    Super = settings.key.cmd
+    Alt = settings.key.alt
     return [
         Key(
             [Super, Alt],

@@ -1,4 +1,5 @@
 import string
+from typing import cast
 
 from .typedef import RGBColor, RGBHex, Opacity
 
@@ -23,7 +24,8 @@ def is_base16(value: str) -> bool:
 def rgb_intensity(rgb: RGBColor):
     """Convert an RGB color to its intensity"""
 
-    return rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114
+    intensity = rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114
+    return intensity
 
 
 def contrast_color(
@@ -67,14 +69,26 @@ def rgbhex_to_rgb(value: RGBHex, allow_short: bool = True) -> RGBColor | None:
         # http://docs.python.org/library/itertools.html
         def to_iterable() -> RGBColor:
             # pylint: disable=missing-docstring
-            args = [iter(value[1:])] * 2
-            return RGBColor([int("%s%s" % t, 16) / 255 for t in zip(*args)])
+            args = [iter(value)] * 2
+
+            elems: RGBColor = cast(
+                RGBColor,
+                tuple(
+                    [int("%s%s" % t, 16) / 255 for t in zip(*args)],
+                ),
+            )
+            return elems
 
     elif len(value) == 3 and allow_short:
 
         def to_iterable() -> RGBColor:
             # pylint: disable=missing-docstring
-            return RGBColor([int("%s%s" % (t, t), 16) / 255 for t in value[1:]])
+            return cast(
+                RGBColor,
+                tuple(
+                    [int("%s%s" % (t, t), 16) / 255 for t in value[1:]],
+                ),
+            )
 
     else:
         return None

@@ -1,40 +1,30 @@
-{
-  "app":
-    {
-      "app_launcher": "rofi-launcher",
-      "brain": "/nix/store/6h2mw77a7n7chd13b4a5jkfwqrdknjvy-obsidian-1.8.7/bin/obsidian",
-      "browser": "/nix/store/8w6b62v1cismcvpvclk6whbl4ydpg66x-brave-1.75.180/bin/brave",
-      "code": "/nix/store/fyl05hfg79mwpwysxnl6a1bcw0ids4d6-code-1.97.2/bin/code",
-      "user_menu": null,
-      "system_menu": "system-menu",
-      "terminal": "/nix/store/2wpb0lhcfcqjjqf40x66xd1jvw7jzkh4-alacritty-0.15.1/bin/alacritty",
-      "volume": "/nix/store/9g7yv2aafcabgwvs0j64yq5pz6wa8087-pavucontrol-6.1/bin/pavucontrol",
-    },
-  "controller":
-    {
-      "music":
-        {
-          "next": "musicctl next",
-          "play": "musicctl play",
-          "previous": "musicctl previous",
-          "stop": "musicctl stop",
-          "toggle": "musicctl toggle",
-        },
-      "volume":
-        {
-          "down": "volumectl down",
-          "mute": "volumectl mute",
-          "toggle": "volumectl toggle",
-          "up": "volumectl up",
-        },
-    },
-  "device": { "net": "wlp3s0" },
-  "key":
-    {
-      "alt": "mod1",
-      "cmd": "mod4",
-      "ctrl": "control",
-      "hyper": "mod3",
-      "shift": "shift",
-    },
-}
+app:
+  app_launcher: rofi-launcher
+  brain: /nix/store/5swycra7hzwfa9sfidbjlwflry4vib01-obsidian-1.8.9/bin/obsidian
+  browser: /nix/store/gx82kd2i0gi4dfn0jsb8sjla0lisz4vi-brave-1.76.74/bin/brave
+  clipboard_copy: rofi-clip -c
+  clipboard_delete: rofi-clip -d
+  code: /nix/store/qbwqm91mvwahgw6458fnl55xyjxn12vr-code-1.98.2/bin/code
+  system_menu: system-menu
+  terminal: /nix/store/lcpldarpy2zan5ypm52hj8nqsgi6s750-alacritty-0.15.1/bin/alacritty
+  volume: /nix/store/xiiidy5dqrkrnm1fxxaxkkyycsvnzyzv-pavucontrol-6.1/bin/pavucontrol
+controller:
+  music:
+    next: musicctl next
+    play: musicctl play
+    previous: musicctl previous
+    stop: musicctl stop
+    toggle: musicctl toggle
+  volume:
+    down: volumectl down
+    mute: volumectl mute
+    toggle: volumectl toggle
+    up: volumectl up
+device:
+  net: wlp3s0
+key:
+  alt: mod1
+  cmd: mod4
+  ctrl: control
+  hyper: mod3
+  shift: shift

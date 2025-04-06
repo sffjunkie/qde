@@ -1,15 +1,17 @@
 from pathlib import Path
-from typing import Any, cast
 
 from libqtile.log_utils import logger  # type: ignore
 
 from ..fs import read_yaml, user_config_dir
-from .default import (
-    DEFAULT_COLOR,
-    DEFAULT_EXTENSION,
-    DEFAULT_LAYOUT,
+from .model.default import (
+    DEFAULT_NAMED_COLORS,
+    DEFAULT_BAR_EXTENSION,
+    DEFAULT_WINDOW,
     DEFAULT_WIDGET,
-    DEFAULT_FONT,
+    DEFAULT_BASE16,
+    DEFAULT_FLOATING,
+    DEFAULT_THEME,
+    DEFAULT_FONTS,
     DEFAULT_BAR,
 )
 from .deref import deref_color
@@ -17,7 +19,7 @@ from .palette import (
     theme_base16_color_palette,
     theme_named_color_palette,
 )
-from .typedef import NamedColors, Theme
+from .model import Theme
 
 
 def _theme_path(filepath: Path | None = None) -> Path | None:
@@ -37,67 +39,87 @@ def _theme_path(filepath: Path | None = None) -> Path | None:
     return theme_path
 
 
-def _dict_to_theme(data: dict[str, Any]):
-    theme: Theme = {
-        "bar": data.get("bar", DEFAULT_BAR),
-        "color": data.get("color", DEFAULT_COLOR),
-        "extension": data.get("extension", DEFAULT_EXTENSION),
-        "font": data.get("font", DEFAULT_FONT),
-        "layout": data.get("layout", DEFAULT_LAYOUT),
-        "logo": data.get("logo", None),
-        "path": data.get("path", None),
-        "widget": data.get("widget", DEFAULT_WIDGET),
-    }
-    return theme
-
-
-def _user_theme(filepath: Path | None) -> Theme:
-    user_theme_path = _theme_path(filepath)
-    theme_data = read_yaml(user_theme_path)
-    if theme_data is None:
-        user_theme_data = {}
+def _theme_data(filepath: Path | None) -> dict:
+    theme_data = read_yaml(filepath)
+    if not theme_data:
+        user_theme_data = DEFAULT_THEME
     else:
-        user_theme_data = theme_data | {"path": user_theme_path}
-    return _dict_to_theme(user_theme_data)
+        user_theme_data = DEFAULT_THEME | theme_data | {"path": filepath}
+    return user_theme_data
 
 
 def load_theme(filepath: Path | None = None) -> Theme:
-    user_theme = _user_theme(filepath)
+    user_theme_path = _theme_path(filepath)
+    user_theme = _theme_data(user_theme_path)
 
-    base16_colors = theme_base16_color_palette(user_theme)
-    # logger.warning(f"base16_colors: {base16_colors}")
+    base16_palette = theme_base16_color_palette(user_theme)
+
+    if (
+        user_theme.get("color", None) is None
+        or user_theme["color"].get("base16", None) is None
+    ):
+        b16 = DEFAULT_BASE16
+    else:
+        b16 = (
+            DEFAULT_BASE16 | user_theme["color"]["base16"] | {"palette": base16_palette}
+        )
 
     named_colors = theme_named_color_palette(user_theme)
-    # logger.warning(f"named_colors: {named_colors}")
-
-    updated_colors = deref_color(
-        dict(named_colors),
-        base16_colors,
+    named_colors = named_colors | deref_color(
+        data=named_colors,
+        base16_colors=base16_palette,
     )
-    named_colors = named_colors | cast(NamedColors, updated_colors)
 
-    color = user_theme["color"]
-    color["base16"]["palette"] = base16_colors
-    color["named"] = named_colors
+    if user_theme["color"].get("named", None) is None:
+        nc = DEFAULT_NAMED_COLORS
+    else:
+        nc = DEFAULT_NAMED_COLORS | named_colors
 
-    widget = user_theme["widget"]
-    widget = widget | deref_color(widget, base16_colors, named_colors)
+    color = {"base16": b16, "named": nc}
 
-    extension = user_theme["extension"]
-    extension = extension | deref_color(extension, base16_colors, named_colors)
+    widget_dict = DEFAULT_WIDGET | user_theme["widget"]
+    widget = widget_dict | deref_color(
+        widget_dict,
+        base16_colors=base16_palette,
+        named_colors=named_colors,
+    )
 
-    layout = user_theme["layout"]
-    layout = layout | deref_color(layout, base16_colors, named_colors)
+    extension_dict = DEFAULT_BAR_EXTENSION | user_theme["extension"]
+    extension = extension_dict | deref_color(
+        data=extension_dict,
+        base16_colors=base16_palette,
+        named_colors=named_colors,
+    )
 
-    theme_def = Theme(
-        path=user_theme["path"],
-        bar=user_theme["bar"],
-        color=color,
-        extension=extension,
-        font=user_theme["font"],
-        layout=layout,
-        logo=user_theme["logo"],
-        widget=widget,
+    wt_dict = DEFAULT_WINDOW | user_theme["window_tiled"]
+    window_tiled = wt_dict | deref_color(
+        data=wt_dict,
+        base16_colors=base16_palette,
+        named_colors=named_colors,
+    )
+
+    wf_dict = DEFAULT_FLOATING | user_theme["window_floating"]
+    window_floating = wf_dict | deref_color(
+        data=wf_dict,
+        base16_colors=base16_palette,
+        named_colors=named_colors,
+    )
+
+    bar = DEFAULT_BAR | user_theme["bar"]
+    font = DEFAULT_FONTS | user_theme["font"]
+
+    theme_def = Theme.model_validate(
+        {
+            "bar": bar,
+            "color": color,
+            "extension": extension,
+            "font": font,
+            "logo": user_theme["logo"],
+            "path": user_theme_path,
+            "widget": widget,
+            "window_floating": window_floating,
+            "window_tiled": window_tiled,
+        }
     )
 
     return theme_def

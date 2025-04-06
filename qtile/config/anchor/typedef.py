@@ -12,11 +12,6 @@ class FloatRange:
 ScreenFraction = Annotated[float, FloatRange(min=0.0, max=1.0)]
 
 
-class MarginTopRight(NamedTuple):
-    top: ScreenFraction
-    right: ScreenFraction
-
-
 class Margins(NamedTuple):
     top: ScreenFraction
     right: ScreenFraction
@@ -24,7 +19,7 @@ class Margins(NamedTuple):
     left: ScreenFraction
 
 
-Margin = ScreenFraction | MarginTopRight | Margins
+Margin = ScreenFraction | Margins
 
 
 @dataclass
