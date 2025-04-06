@@ -6,7 +6,7 @@
   ...
 }:
 let
-  cfg = config.desktop.window_manager.qtile;
+  cfg = config.desktop.qde;
 
   startScript =
     if !useUWSM then
@@ -36,8 +36,8 @@ let
     ;
 in
 {
-  options.desktop.window_manager.qtile = {
-    enable = mkEnableOption "qtile";
+  options.desktop.qde = {
+    enable = mkEnableOption "qde";
 
     extraPythonPackages = mkOption {
       type = types.functionTo (types.listOf types.package);
