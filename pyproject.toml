@@ -40,3 +40,7 @@ norecursedirs = [
 [tool.ruff.lint.isort]
 known-first-party = ["config"]
 known-third-party = ["libqtile"]
+
+[[tool.mypy.overrides]]
+module = ["psutil.*", "yaml.*"]
+ignore_missing_imports = true
