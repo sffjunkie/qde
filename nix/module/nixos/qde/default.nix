@@ -40,7 +40,8 @@ in
     enable = mkEnableOption "qde";
 
     extraPythonPackages = mkOption {
-      type = types.functionTo (types.listOf types.package);
+      type = types.nullOr (types.functionTo (types.listOf types.package));
+      default = null;
       description = ''
         A function that returns a list of packages from a package set
         to be added to the default packages required by qtile.
@@ -88,7 +89,7 @@ in
             ps.qtile
             ps.iwlib
           ]
-          ++ (cfg.extraPythonPackages ps)
+          ++ lib.optionals (cfg.extraPythonPackages != null) (cfg.extraPythonPackages ps)
         );
       in
       mkIf useUWSM {
@@ -117,7 +118,7 @@ in
             ps.qtile
             ps.iwlib
           ]
-          ++ (cfg.extraPythonPackages ps)
+          ++ lib.optionals (cfg.extraPythonPackages != null) (cfg.extraPythonPackages ps)
         );
       in
       mkIf (!useUWSM) {
